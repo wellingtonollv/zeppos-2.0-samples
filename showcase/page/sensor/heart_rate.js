@@ -1,7 +1,11 @@
 import { createWidget, widget, prop, event, align, text_style } from '@zos/ui'
 import { HeartRate } from '@zos/sensor'
-import { px } from '@zos/utils'
+import { log as Logger, px } from '@zos/utils'
 import PageAdvanced from '../../utils/template/PageAdvanced'
+import log from '../../utils/log'
+
+const logger = Logger.getLogger("heart_rate")
+const { messageBuilder } = getApp()._options.globalData
 
 PageAdvanced({
   state: {
@@ -56,9 +60,11 @@ PageAdvanced({
     })
 
     const currCallback = () => {
+      const current =  heartRate.getCurrent();
       currentText.setProperty(prop.MORE, {
-        text: `EVENT-CURRENT: ${heartRate.getCurrent()}`
+        text: `EVENT-CURRENT: ${current}`
       })
+      this.postData(current);
     }
 
     createWidget(widget.BUTTON, {
@@ -72,6 +78,7 @@ PageAdvanced({
       text: 'REGISTER_CURRENT',
       click_func: () => {
         heartRate.onCurrentChange(currCallback)
+
       }
     })
 
@@ -91,8 +98,23 @@ PageAdvanced({
       press_color: 0xfeb4a8,
       text: 'REGISTER_LAST',
       click_func: () => {
-        heartRate.onLastChange(lastCallback)
+        // heartRate.onLastChange(lastCallback)
+        this.postData(heartRate.getLast());
       }
+    })
+  },
+  postData(currentHeartRate) {
+    messageBuilder.request({
+      method: "POST_HEART_RATE",
+      params: {
+        currentHeartRate
+      }
+    })
+    .then(data => {
+      logger.log('receive data')
+      console.log('foi meuu');
+      logger.log('aaa amigao')
+    }).catch(res => {
     })
   }
 })

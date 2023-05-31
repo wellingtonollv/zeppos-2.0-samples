@@ -23,7 +23,8 @@
     "data:user.hd.sleep",
     "data:user.hd.stand",
     "data:user.hd.step",
-    "data:user.hd.stress"
+    "data:user.hd.stress",
+    "device:os.local_storage"
   ],
   "runtime": {
     "apiVersion": {
@@ -70,6 +71,9 @@
             "page/ui/widget/cycle_list",
             "page/ui/widget/cycle_image_text_list"
           ]
+        },
+        "app-side": {
+          "path": "app-side/index"
         }
       },
       "platforms": [

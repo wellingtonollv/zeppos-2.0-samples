@@ -1,23 +1,11 @@
 import { MessageBuilder } from '../shared/message-side'
 
 const messageBuilder = new MessageBuilder()
+const webSocket = new WebSocket('ws://localhost:8080')
 
-// Simulating an asynchronous network request using Promise
-const mockAPI = async () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve({
-        body: {
-          data: {
-            text: 'HELLO ZEPPOS'
-          }
-        }
-      })
-    }, 1000)
-  })
-}
 
-const fetchData = async (ctx) => {
+
+const fetchData = async (payload) => {
   try {
     // Requesting network data using the fetch API
     // The sample program is for simulation only and does not request real network data, so it is commented here
@@ -39,17 +27,25 @@ const fetchData = async (ctx) => {
     // })
 
     // A network request is simulated here
-    const res = await mockAPI()
-    const resBody = typeof res.body === 'string' ?  JSON.parse(res.body) : res.body
+    const res = await fetch({
+      url: 'https://oculus-test.vercel.app/api',
+      method: 'POST',
+      body: JSON.stringify({
+        payload
+      })
+    });
+    console.log(res, 'res')
+    // const resBody = typeof res.body === 'string' ?  JSON.parse(res.body) : res.body
 
-    ctx.response({
-      data: { result: resBody.data },
-    })
+    // ctx.response({
+    //   data: { result: resBody.data },
+    // })
 
   } catch (error) {
-    ctx.response({
-      data: { result: 'ERROR' },
-    })
+    console.log('errorzito',error)
+    // ctx.response({
+    //   data: { result: 'ERROR' },
+    // })
   }
 }
 
@@ -57,10 +53,17 @@ AppSideService({
   onInit() {
     messageBuilder.listen(() => {})
 
+    webSocket.onopen = () => {
+      console.log('WebSocket Client Connected')
+    }
+
     messageBuilder.on('request', (ctx) => {
       const jsonRpc = messageBuilder.buf2Json(ctx.request.payload)
-      if (jsonRpc.method === 'GET_DATA') {
-        return fetchData(ctx)
+      console.log(jsonRpc.method, 'jsonRpc');
+      console.log(jsonRpc, 'jsonRpc')
+      if (jsonRpc.method === 'POST_HEART_RATE') {
+        webSocket.send(JSON.stringify(jsonRpc))
+        return fetchData(jsonRpc.params)
       }
     })
   },
