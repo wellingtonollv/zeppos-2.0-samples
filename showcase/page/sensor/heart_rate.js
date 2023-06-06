@@ -105,7 +105,7 @@ PageAdvanced({
   },
   postData(currentHeartRate) {
     messageBuilder.request({
-      method: "POST_HEART_RATE",
+      method: "HEART_RATE",
       params: {
         currentHeartRate
       }
