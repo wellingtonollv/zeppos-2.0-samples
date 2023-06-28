@@ -1,1 +1,0 @@
-export const DEFAULT_TODO_LIST = ['Learn', 'Drink', 'Food']
