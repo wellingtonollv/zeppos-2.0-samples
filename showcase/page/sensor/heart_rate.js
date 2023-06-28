@@ -1,18 +1,23 @@
-import { createWidget, widget, prop, event, align, text_style } from '@zos/ui'
-import { HeartRate } from '@zos/sensor'
-import { log as Logger, px } from '@zos/utils'
-import PageAdvanced from '../../utils/template/PageAdvanced'
-import log from '../../utils/log'
+import { createWidget, widget, prop, event, align, text_style } from "@zos/ui";
+import { HeartRate } from "@zos/sensor";
+import { log as Logger, px } from "@zos/utils";
+import PageAdvanced from "../../utils/template/PageAdvanced";
+import log from "../../utils/log";
+import { pauseDropWristScreenOff } from '@zos/display';
 
-const logger = Logger.getLogger("heart_rate")
-const { messageBuilder } = getApp()._options.globalData
+const logger = Logger.getLogger("heart_rate");
+const { messageBuilder } = getApp()._options.globalData;
+
+pauseDropWristScreenOff({
+  duration: 0,
+})
 
 PageAdvanced({
   state: {
-    pageName: 'HeartRate'
+    pageName: "HeartRate",
   },
   build() {
-    const heartRate = new HeartRate()
+    const heartRate = new HeartRate();
 
     const text = createWidget(widget.TEXT, {
       x: px(0),
@@ -24,14 +29,14 @@ PageAdvanced({
       align_h: align.CENTER_H,
       align_v: align.CENTER_V,
       text_style: text_style.NONE,
-      text: `CURRENT: ${heartRate.getCurrent()}; LAST: ${heartRate.getLast()}`
-    })
+      text: `CURRENT: ${heartRate.getCurrent()}; LAST: ${heartRate.getLast()}`,
+    });
 
     text.addEventListener(event.CLICK_DOWN, (info) => {
       text.setProperty(prop.MORE, {
-        text: `CURRENT: ${heartRate.getCurrent()}; LAST: ${heartRate.getLast()}`
-      })
-    })
+        text: `CURRENT: ${heartRate.getCurrent()}; LAST: ${heartRate.getLast()}`,
+      });
+    });
 
     const currentText = createWidget(widget.TEXT, {
       x: px(0),
@@ -43,8 +48,8 @@ PageAdvanced({
       align_h: align.CENTER_H,
       align_v: align.CENTER_V,
       text_style: text_style.NONE,
-      text: `EVENT-CURRENT: `
-    })
+      text: `EVENT-CURRENT: `,
+    });
 
     const lastText = createWidget(widget.TEXT, {
       x: px(0),
@@ -56,16 +61,16 @@ PageAdvanced({
       align_h: align.CENTER_H,
       align_v: align.CENTER_V,
       text_style: text_style.NONE,
-      text: `EVENT-LAST: `
-    })
+      text: `EVENT-LAST: `,
+    });
 
     const currCallback = () => {
-      const current =  heartRate.getCurrent();
+      const current = heartRate.getCurrent();
       currentText.setProperty(prop.MORE, {
-        text: `EVENT-CURRENT: ${current}`
-      })
-      this.postData(current);
-    }
+        text: `EVENT-CURRENT: ${current}`,
+      });
+      this.sendData(current);
+    };
 
     createWidget(widget.BUTTON, {
       x: px(80),
@@ -75,18 +80,17 @@ PageAdvanced({
       radius: px(12),
       normal_color: 0xfc6950,
       press_color: 0xfeb4a8,
-      text: 'REGISTER_CURRENT',
+      text: "REGISTER_CURRENT",
       click_func: () => {
-        heartRate.onCurrentChange(currCallback)
-
-      }
-    })
+        heartRate.onCurrentChange(currCallback);
+      },
+    });
 
     const lastCallback = () => {
       lastText.setProperty(prop.MORE, {
-        text: `EVENT-LAST: ${heartRate.getLast()}`
-      })
-    }
+        text: `EVENT-LAST: ${heartRate.getLast()}`,
+      });
+    };
 
     createWidget(widget.BUTTON, {
       x: px(80),
@@ -96,25 +100,19 @@ PageAdvanced({
       radius: px(12),
       normal_color: 0xfc6950,
       press_color: 0xfeb4a8,
-      text: 'REGISTER_LAST',
+      text: "REGISTER_LAST",
       click_func: () => {
         // heartRate.onLastChange(lastCallback)
-        this.postData(heartRate.getLast());
-      }
-    })
+        this.sendData(heartRate.getLast());
+      },
+    });
   },
-  postData(currentHeartRate) {
+  sendData(currentHeartRate) {
     messageBuilder.request({
       method: "HEART_RATE",
       params: {
-        currentHeartRate
-      }
-    })
-    .then(data => {
-      logger.log('receive data')
-      console.log('foi meuu');
-      logger.log('aaa amigao')
-    }).catch(res => {
-    })
-  }
-})
+        currentHeartRate,
+      },
+    });
+  },
+});
