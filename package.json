@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@zeppos/zeus-cli": "^1.2.3"
+    "@zeppos/zeus-cli": "^1.2.3",
+    "zepzep":"123"
   }
 }
